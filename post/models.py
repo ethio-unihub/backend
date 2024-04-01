@@ -13,7 +13,7 @@ class Tag(models.Model):
 class Post(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=500)
-    slug = models.CharField(max_length=600)
+    slug = models.SlugField(unique=True, blank=True)
     video = models.FileField(upload_to='posts/videos/', blank=True)
     description = models.TextField()
     likes = models.ManyToManyField(Profile, related_name='liked_posts', blank=True)
@@ -22,6 +22,17 @@ class Post(models.Model):
     downvote = models.ManyToManyField(Profile, related_name='downvoted_posts', blank=True)
     added_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        if not self._state.adding and self.__class__.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            counter = 1
+            original_slug = self.slug
+            while self.__class__.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = f"{original_slug}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)
 
 class PostImage(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
