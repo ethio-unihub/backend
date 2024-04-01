@@ -7,12 +7,7 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'added_time', 'updated_time')
-    list_filter = ('owner',)
-    search_fields = ('name', 'description')
-    date_hierarchy = 'added_time'
-    prepopulated_fields = {'slug': ('name',)}
-    exclude = ('owner_content_type', 'owner_object_id')
+    pass
 
 @admin.register(PostImage)
 class PostImageAdmin(admin.ModelAdmin):
@@ -20,14 +15,11 @@ class PostImageAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('comment', 'comment_time')  # Exclude 'for_post' from list display
-    list_filter = ('comment_time',)  # Adjust list_filter according to your needs
-    search_fields = ('comment',)
-    date_hierarchy = 'comment_time'
+    pass
 
 @admin.register(CommentImage)
 class CommentImageAdmin(admin.ModelAdmin):
-    list_display = ('comment', 'added_time')
+    pass
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):

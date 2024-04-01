@@ -7,7 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/',include('core.urls')),
-    # path('post/',include('post.urls')),
+    path('post/',include('post.urls')),
     path('', TemplateView.as_view(template_name='index.html')),
 
     path('auth/',include('djoser.urls')),

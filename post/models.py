@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils.text import slugify
 
 from user.models import Profile
 
@@ -40,13 +41,15 @@ class PostImage(models.Model):
     added_time = models.DateTimeField(auto_now_add=True)
 
 class Comment(models.Model):
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    # Using ContentType framework for generic relationships
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    for_post = GenericForeignKey('content_type', 'object_id')
-    comment = models.TextField()
-    upvote = models.ManyToManyField(Profile, related_name='upvoted_comments')
-    downvote = models.ManyToManyField(Profile, related_name='downvoted_comments')
-    comment_time = models.DateTimeField(auto_now_add=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return f"Comment on {self.content_object}"
 
 class CommentImage(models.Model):
     comment_image = models.ImageField(upload_to='files/comment_images/')
