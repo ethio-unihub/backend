@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'djoser',
     'corsheaders',
     'debug_toolbar',
+    'django_filters',
 
     'core',
     'post',
@@ -94,7 +95,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'PAGE_SIZE':10
 }
+
 from datetime import timedelta
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),

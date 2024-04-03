@@ -19,17 +19,16 @@ class CommentImageSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    person = ProfileSerializer()
     replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'created_at', 'person', 'replies']
+        fields = ['id', 'author', 'content', 'created_at', 'replies']
 
     def get_replies(self, obj):
-        replies = Comment.objects.filter(parent=obj)
-        return CommentSerializer(replies, many=True).data
-
+        replies = obj.replies.all()
+        serializer = self.__class__(replies, many=True, context=self.context)
+        return serializer.data
 
 class PostSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, read_only=True)
@@ -40,7 +39,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'owner', 'name', 'slug', 'video', 'images','comments_count', 'description', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
+        fields = ['id', 'owner', 'name', 'slug', 'video', 'images','comments_count', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
 
     def create(self, validated_data):
         validated_data['person'] = self.context['request'].user.profile
@@ -57,20 +56,17 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_comments_count(self, obj):
         return self.count_comments(obj)
-
+    
     def count_comments(self, obj):
-        main_comments = Comment.objects.filter(content_type__model='post', object_id=obj.id, parent=None)
+        main_comments = Comment.objects.filter(post=obj, parent_comment=None)
         count = main_comments.count()
         for comment in main_comments:
             count += self.count_replies(comment)
         return count
 
     def count_replies(self, comment):
-        count = 0
-        replies = Comment.objects.filter(parent=comment)
-        count += replies.count()
-        for reply in replies:
+        count = comment.replies.count()
+        for reply in comment.replies.all():
             count += self.count_replies(reply)
         return count
-
 

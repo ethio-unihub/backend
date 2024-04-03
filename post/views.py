@@ -1,21 +1,24 @@
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework import status, permissions, viewsets
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import Post, Comment
+from .filter import PostFilter
 from .serializers import PostSerializer, CommentSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
-
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = PostFilter
+    pagination_class = PageNumberPagination
+    search_fields = ['name','description','owner__user__first_name','owner__user__last_name']
+    ordering_fields = ['upvote','added_time']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user.profile)
@@ -29,17 +32,19 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-
-    def perform_create(self, serializer):
-        content_type = ContentType.objects.get_for_model(Post)
-        serializer.save(person=self.request.user.profile, content_type=content_type)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        content_type = ContentType.objects.get_for_model(Post)
-        post_pk = self.kwargs.get('post_pk')
-        print("Content Type:", content_type)
-        print("Post PK:", post_pk)
-        queryset = Comment.objects.filter(content_type=content_type, object_id=post_pk)
-        print("Queryset:", queryset)
+        post_id = self.kwargs.get('post_pk')
+        queryset = Comment.objects.filter(post_id=post_id, )
         return queryset
+    
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        data['author'] = request.user.id
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data)

@@ -41,16 +41,17 @@ class PostImage(models.Model):
     added_time = models.DateTimeField(auto_now_add=True)
 
 class Comment(models.Model):
-    content = models.TextField()
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE, null=True, blank=True)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True)
+    content = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    person = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='comments')
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    parent_comment = models.ForeignKey('self', related_name='replies', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f"Comment by {self.person} on {self.content_object}"
+        if self.parent_comment:
+            return "reply for {}".format(self.parent_comment)
+        if self.post:
+            return "comment for {}".format(self.post)
 
 class CommentImage(models.Model):
     comment_image = models.ImageField(upload_to='files/comment_images/')
