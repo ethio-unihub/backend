@@ -17,7 +17,7 @@ class Post(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     video = models.FileField(upload_to='posts/videos/', blank=True)
     description = models.TextField()
-    likes = models.ManyToManyField(Profile, related_name='liked_posts', blank=True)
+    saves = models.ManyToManyField(Profile, related_name='liked_posts', blank=True)
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     upvote = models.ManyToManyField(Profile, related_name='upvoted_posts', blank=True)
     downvote = models.ManyToManyField(Profile, related_name='downvoted_posts', blank=True)
@@ -43,13 +43,14 @@ class PostImage(models.Model):
 class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    # Using ContentType framework for generic relationships
+    person = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return f"Comment on {self.content_object}"
+        return f"Comment by {self.person} on {self.content_object}"
 
 class CommentImage(models.Model):
     comment_image = models.ImageField(upload_to='files/comment_images/')
@@ -62,3 +63,6 @@ class Report(models.Model):
     reported_post = GenericForeignKey('reported_content_type', 'reported_object_id')
     description = models.TextField()
     time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reported {self.reported_content_type.model} at {self.time}"
