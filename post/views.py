@@ -2,7 +2,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, permissions, viewsets
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import Post, Comment
@@ -11,11 +10,10 @@ from .serializers import PostSerializer, CommentSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.prefetch_related('downvote','upvote','saves','images','comments').select_related('owner').all()
     serializer_class = PostSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = PostFilter
-    pagination_class = PageNumberPagination
     search_fields = ['name','description','owner__user__first_name','owner__user__last_name']
     ordering_fields = ['upvote','added_time']
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
