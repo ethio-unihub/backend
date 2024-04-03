@@ -17,7 +17,7 @@ class Post(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     video = models.FileField(upload_to='posts/videos/', blank=True)
     description = models.TextField()
-    saves = models.ManyToManyField(Profile, related_name='liked_posts', blank=True)
+    saves = models.ManyToManyField(Profile, related_name='saved_posts', blank=True)
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     upvote = models.ManyToManyField(Profile, related_name='upvoted_posts', blank=True)
     downvote = models.ManyToManyField(Profile, related_name='downvoted_posts', blank=True)
@@ -45,7 +45,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     person = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='comments')
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 

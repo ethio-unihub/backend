@@ -1,8 +1,9 @@
-from django.contrib.contenttypes.models import ContentType
-
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Count
 
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
@@ -10,7 +11,11 @@ from .serializers import PostSerializer, CommentSerializer
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
+
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user.profile)
@@ -24,7 +29,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
     def perform_create(self, serializer):
@@ -33,7 +37,9 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         content_type = ContentType.objects.get_for_model(Post)
-        return Comment.objects.filter(content_type=content_type, object_id=self.kwargs['post_pk'])
-
-
-
+        post_pk = self.kwargs.get('post_pk')
+        print("Content Type:", content_type)
+        print("Post PK:", post_pk)
+        queryset = Comment.objects.filter(content_type=content_type, object_id=post_pk)
+        print("Queryset:", queryset)
+        return queryset

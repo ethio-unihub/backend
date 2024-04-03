@@ -32,17 +32,20 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    owner = ProfileSerializer()
     images = PostImageSerializer(many=True, read_only=True)
-    # comments = CommentSerializer(many=True, read_only=True)
+    comments_count = serializers.SerializerMethodField()
     save_count = serializers.SerializerMethodField()
     upvote_count = serializers.SerializerMethodField()
     downvote_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'owner', 'name', 'slug', 'video', 'images', 'description', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
+        fields = ['id', 'owner', 'name', 'slug', 'video', 'images','comments_count', 'description', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
 
+    def create(self, validated_data):
+        validated_data['person'] = self.context['request'].user.profile
+        return super().create(validated_data)
+    
     def get_save_count(self, obj):
         return obj.saves.count()
 
@@ -70,6 +73,4 @@ class PostSerializer(serializers.ModelSerializer):
             count += self.count_replies(reply)
         return count
 
-    def get_comments(self, obj):
-        main_comments = Comment.objects.filter(content_type__model='post', object_id=obj.id, parent=None)
-        return CommentSerializer(main_comments, many=True).data
+
