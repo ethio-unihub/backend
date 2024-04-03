@@ -2,11 +2,12 @@ from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
 
-from user.models import Profile
+from user.models import *
 
 class Organization(models.Model):
     name= models.CharField(unique=True, max_length=200)
     logo=models.ImageField(upload_to="organization/logo/")
+    student_email = models.CharField(max_length=50,null=True)
     address=models.TextField()
 
     def __str__(self):
