@@ -13,11 +13,6 @@ def documentation(request):
     }
     return Response(routes)
 
-class HashtagsApi(viewsets.ModelViewSet):
+class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Hashtag.objects.all()
     serializer_class = HashtagSerializer
-    http_method_names = ['get']
-
-    def list(self, request):
-        serializer = self.serializer_class(self.queryset, many=True)
-        return Response(serializer.data)
