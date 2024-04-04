@@ -27,6 +27,7 @@ class Badge(models.Model):
     badge_name=models.CharField(max_length=200)
     badge_image=models.ImageField(upload_to='user/badge')
     badge_descriptinon=models.TextField(max_length=500)
+    to = models.ManyToManyField(Profile, related_name='badges', blank=True)
 
 
 
