@@ -24,6 +24,9 @@ class Post(models.Model):
     added_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f'{self.name[:30]} by {self.owner.user.username}'
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -41,11 +44,13 @@ class PostImage(models.Model):
     added_time = models.DateTimeField(auto_now_add=True)
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE, null=True, blank=True)
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE, null=True)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True)
     content = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     parent_comment = models.ForeignKey('self', related_name='replies', on_delete=models.CASCADE, null=True, blank=True)
+    upvote = models.ManyToManyField(Profile, related_name='upvoted_comment', blank=True)
+    downvote = models.ManyToManyField(Profile, related_name='downvoted_comment', blank=True)
 
     def __str__(self):
         if self.parent_comment:
