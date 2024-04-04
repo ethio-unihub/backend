@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
 from user.models import *
-from user.models import User
+#from user.models import User
 
 class Organization(models.Model):
     name= models.CharField(unique=True, max_length=200)
