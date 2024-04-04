@@ -21,3 +21,15 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}'s profile"
+
+
+class Badge(models.Model):
+    badge_name=models.CharField(max_length=200)
+    badge_image=models.ImageField(upload_to='user/badge')
+    badge_descriptinon=models.TextField(max_length=500)
+
+
+
+    def __str__(self):
+        return self.badge_name
+
