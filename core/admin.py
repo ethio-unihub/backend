@@ -1,6 +1,12 @@
 from django.contrib import admin
 from .models import Organization, Hashtag
 
+'''
+@admin.register(Community)
+class CommunityAdmin(admin.ModelAdmin):
+    list_display = ('community_name', 'owner')
+    search_fields = ('community_name',)
+'''
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('name', 'address')
