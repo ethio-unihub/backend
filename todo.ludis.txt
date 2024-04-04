@@ -1,1 +1,5 @@
 -- related posts
+-- comment images
+-- algorithm
+-- filtering with hashtags
+
