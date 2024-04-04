@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Post, Comment, PostImage
+from .models import Post, Comment, PostImage, Tag
 from .filter import PostFilter
 from .serializers import *
 
@@ -128,3 +128,24 @@ class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user.profile)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.creator != request.user.profile:
+            return Response({"error": "You do not have permission to update this tag."}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.creator != request.user.profile:
+            return Response({"error": "You do not have permission to delete this tag."}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)

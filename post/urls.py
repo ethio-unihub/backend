@@ -7,6 +7,7 @@ from .views import *
 
 router = DefaultRouter()
 router.register(r'posts', PostViewSet)
+router.register(r'tags', TagViewSet)
 
 posts_router = NestedDefaultRouter(router, r'posts', lookup='post')
 posts_router.register(r'images', PostImageViewSet, basename='post-images')

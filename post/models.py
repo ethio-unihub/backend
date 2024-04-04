@@ -4,9 +4,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 
 from user.models import Profile
+from core.models import Hashtag
 
 class Tag(models.Model):
     name = models.CharField(max_length=256)
+    creator = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='tags', null=True)
+    hashtags = models.ManyToManyField(Hashtag, related_name='tags', blank=True)
 
     def __str__(self):
         return self.name

@@ -3,7 +3,7 @@ from django.db.models import Count
 from rest_framework import serializers
 
 from user.serializers import ProfileSerializer
-from .models import Post, PostImage, Comment, CommentImage
+from .models import Post, PostImage, Comment, CommentImage, Tag
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -89,3 +89,8 @@ class PostChangeSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['saves', 'upvote', 'downvote']
 
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "name",'hashtags']
