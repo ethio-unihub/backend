@@ -1,6 +1,8 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count
 
-from rest_framework import status, permissions, viewsets
+from rest_framework import status, permissions, viewsets, pagination, generics
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -83,20 +85,46 @@ class PostImageViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class CommentListView(generics.ListAPIView):
+    queryset = Comment.objects.prefetch_related('replies').all()
+    serializer_class = CommentListSerializer
 
     def get_queryset(self):
-        post_id = self.kwargs.get('post_pk')
-        queryset = Comment.objects.filter(post_id=post_id, parent_comment=None )
+        post_pk = self.kwargs.get('post_pk')
+        queryset = Comment.objects.filter(post_id=post_pk, parent_comment=None)
+        queryset = queryset.annotate(upvote_count=Count('upvote')).order_by('-upvote_count')
         return queryset
-    
-    def create(self, request, *args, **kwargs):
-        data = request.data.copy()
-        data['author'] = request.user.id
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data)
 
+class CommentCreateAPIView(generics.CreateAPIView):
+    serializer_class = CommentCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        post_pk = self.kwargs.get('post_pk')
+        serializer.save(author=self.request.user.profile, post_id=post_pk)
+
+
+class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentListSerializer
+    lookup_url_kwarg = 'comment_pk'
+    lookup_field = 'id'
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        if request.user.profile == instance.author:
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        else:
+            return Response({"error": "You do not have permission to update this comment."}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if request.user.profile == instance.author:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"error": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)

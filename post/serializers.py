@@ -1,8 +1,9 @@
+from django.db.models import Count
+
 from rest_framework import serializers
-from .models import Post, PostImage, Comment, CommentImage
-from django.contrib.contenttypes.models import ContentType
 
 from user.serializers import ProfileSerializer
+from .models import Post, PostImage, Comment, CommentImage
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -17,31 +18,31 @@ class CommentImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentListSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
+    upvote_count = serializers.SerializerMethodField()
+    downvote_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'created_at', 'replies']
+        fields = ['id', 'author', 'content', 'created_at','upvote_count', 'downvote_count', 'replies']
 
     def get_replies(self, obj):
-        replies = obj.replies.all()
+        replies = obj.replies.annotate(upvote_count=Count('upvote')).order_by('-upvote_count')
         serializer = self.__class__(replies, many=True, context=self.context)
         return serializer.data
+
+    def get_upvote_count(self, obj):
+        return obj.upvote.count()
+
+    def get_downvote_count(self, obj):
+        return obj.downvote.count()
     
-
-class ReplySerializer(serializers.ModelSerializer):
-    replies = serializers.SerializerMethodField()
-
+class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'created_at', 'replies']
-
-    def get_replies(self, obj):
-        replies = obj.replies.all()
-        serializer = self.__class__(replies, many=True, context=self.context)
-        return serializer.data
-
+        fields = ['parent_comment', 'content',]
+    
 
 class PostListSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, read_only=True)
@@ -67,7 +68,7 @@ class PostListSerializer(serializers.ModelSerializer):
         return self.count_comments(obj)
     
     def count_comments(self, obj):
-        main_comments = Comment.objects.filter(post=obj)
+        main_comments = Comment.objects.filter(post=obj, parent_comment=None)
         count = main_comments.count()
         return count
 

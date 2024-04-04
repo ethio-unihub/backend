@@ -9,7 +9,12 @@ router = DefaultRouter()
 router.register(r'posts', PostViewSet)
 
 posts_router = NestedDefaultRouter(router, r'posts', lookup='post')
-posts_router.register(r'comments', CommentViewSet, basename='post-comments')
-posts_router.register(r'images', PostImageViewSet, basename='post-images-comments')
+posts_router.register(r'images', PostImageViewSet, basename='post-images')
 
 urlpatterns = router.urls + posts_router.urls
+
+urlpatterns += [
+    path('posts/<int:post_pk>/comments/', CommentListView.as_view(), name='comment-list'),
+    path('posts/<int:post_pk>/comments/create/', CommentCreateAPIView.as_view(), name='comment-create'),
+    path('posts/<int:post_pk>/comments/<int:comment_pk>/get/', CommentRetrieveUpdateDestroyAPIView.as_view(), name='comment-create'),
+]

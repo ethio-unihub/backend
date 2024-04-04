@@ -54,9 +54,9 @@ class Comment(models.Model):
 
     def __str__(self):
         if self.parent_comment:
-            return "reply for {}".format(self.parent_comment)
+            return "reply for [{}]".format(self.parent_comment)
         if self.post:
-            return "comment for {}".format(self.post)
+            return f"Comment on '{self.post.name}' by {self.author.user.username} (ID: {self.id})"
 
 class CommentImage(models.Model):
     comment_image = models.ImageField(upload_to='files/comment_images/')
