@@ -30,7 +30,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'user', 'profile_pic', 'verified_org', 'net_vote','net_points']
+        fields = ['id', 'user', 'profile_pic', 'bio', 'verified_org', 'net_vote','net_points']
 
     def get_net_vote(self, obj):
         upvotes = sum([post.upvote.count() for post in obj.posts.all()]) + sum([post.upvote.count() for post in obj.my_comments.all()])
@@ -49,7 +49,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = [ 'user','id', 'profile_pic', 'org_email', 'verified_org', 'net_vote', 'net_points']
+        fields = [ 'user','id', 'profile_pic', 'org_email', 'bio', 'verified_org', 'net_vote', 'net_points']
 
     def get_net_vote(self, obj):
         upvotes = sum([post.upvote.count() for post in obj.posts.all()]) + sum([post.upvote.count() for post in obj.my_comments.all()])

@@ -13,7 +13,7 @@ class HashtagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hashtag
-        fields = ['id', 'name', 'organization', 'subscribers', 'slug']
+        fields = ['id', 'name', 'organization', 'subscribers', 'slug', 'tags']
 
     def validate_slug(self, value):
         if Hashtag.objects.filter(slug=value).exists():

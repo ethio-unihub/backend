@@ -16,6 +16,7 @@ class User(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(user_model,on_delete = models.CASCADE, related_name='profile')
     profile_pic = models.ImageField(upload_to='user/profile',blank=True)
+    bio = models.TextField(null=True,blank=True)
     org_email = models.EmailField(blank=True)
     verified_org = models.BooleanField(default = False)
 
