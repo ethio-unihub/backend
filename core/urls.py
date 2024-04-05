@@ -9,3 +9,7 @@ router.register(r'hashtags', HashtagViewSet, basename='hashtags')
 
 
 urlpatterns = router.urls
+
+urlpatterns += [
+    path('reports/', ReportCreateAPIView.as_view())
+]
