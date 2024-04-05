@@ -29,6 +29,12 @@ def handle_comment_creation(sender, instance, created, **kwargs):
 def handle_post_save(sender, instance, action, model, pk_set, **kwargs):
     if action == 'post_add':
         instance.owner.points.create(value=2, reason='Post Saved')
+        Notification.objects.create(
+            user_profile=instance.owner,
+            message=f'Your post was saved by someone.',
+            sender_profile=None,
+            following=False
+        )
 
 @receiver(m2m_changed, sender=Post.upvote.through)
 def handle_post_upvote(sender, instance, action, model, pk_set, **kwargs):

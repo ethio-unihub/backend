@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
 
-    'core',
-    'post',
+    'core.apps.CoreConfig',
+    'post.apps.PostConfig',
     'user.apps.UserConfig',
+    'file.apps.FileConfig',
 ]
 
 AUTH_USER_MODEL = 'user.User'

@@ -43,6 +43,7 @@ class Report(models.Model):
     person = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='reports')
     description = models.TextField()
     time = models.DateTimeField(auto_now_add=True)
+    approve = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Reported {self.reported_content_type.model} at {self.time}"

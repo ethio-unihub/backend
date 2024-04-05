@@ -1,6 +1,6 @@
 -- related posts
--- comment images
 -- algorithm
+-- comment images
 -- filtering with hashtags
 -- reporting system
 -- profile
