@@ -1,25 +1,44 @@
 from django.contrib import admin
-from .models import User, Profile, Badge, Notification
+from django.utils.html import format_html
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser')
-    search_fields = ('username', 'email', 'first_name', 'last_name')
+from .models import *
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'profile_pic', 'org_email', 'verified_org')
-    search_fields = ('user__username', 'org_email')
-    list_filter = ('verified_org',)
+    list_display = ['user', 'profile_pic_preview', 'org_email', 'verified_org']
+    readonly_fields = ['profile_pic_preview']
+
+    def profile_pic_preview(self, obj):
+        if obj.profile_pic:
+            return format_html('<img src="{}" style="max-height:100px;max-width:100px;" />'.format(obj.profile_pic.url))
+        else:
+            return None
+    profile_pic_preview.short_description = 'Profile Picture'
 
 @admin.register(Badge)
 class BadgeAdmin(admin.ModelAdmin):
-    list_display = ('badge_name', 'badge_image_preview', 'badge_descriptinon')
-    search_fields = ('badge_name', 'badge_descriptinon')
+    list_display = ['badge_name', 'badge_image_preview', 'badge_description']
+    readonly_fields = ['badge_image_preview']
 
     def badge_image_preview(self, obj):
-        return obj.badge_image.url if obj.badge_image else None
+        if obj.badge_image:
+            return format_html('<img src="{}" style="max-height:100px;max-width:100px;" />'.format(obj.badge_image.url))
+        else:
+            return None
+    badge_image_preview.short_description = 'Badge Image'
 
-    badge_image_preview.short_description = 'Badge Image Preview'
+@admin.register(UserBadge)
+class UserBadgeAdmin(admin.ModelAdmin):
+    list_display = ['user', 'badge']
 
-admin.site.register(Notification)
+@admin.register(Point)
+class PointAdmin(admin.ModelAdmin):
+    list_display = ['user_profile', 'value', 'reason', 'timestamp']
+    search_fields = ['user_profile__user__username', 'reason']
+    list_filter = ['reason']
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['user_profile', 'message', 'timestamp', 'read', 'sender_profile', 'following', 'answer']
+    search_fields = ['user_profile__user__username', 'message']
+    list_filter = ['read', 'following']

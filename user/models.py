@@ -24,13 +24,19 @@ class Profile(models.Model):
 
 
 class Badge(models.Model):
-    badge_name=models.CharField(max_length=200)
-    badge_image=models.ImageField(upload_to='user/badge')
-    badge_descriptinon=models.TextField(max_length=500)
-    to = models.ManyToManyField(Profile, related_name='badges', blank=True)
+    badge_name = models.CharField(max_length=200)
+    badge_image = models.ImageField(upload_to='user/badge')
+    badge_description = models.TextField(max_length=500)
 
     def __str__(self):
         return self.badge_name
+
+class UserBadge(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='badges')
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name='users')
+
+    def __str__(self):
+        return f"{self.user.username}'s {self.badge.badge_name} badge"
 
 
 class Point(models.Model):
