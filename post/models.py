@@ -14,7 +14,7 @@ class Tag(models.Model):
 
 class Post(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, related_name='posts')
-    name = models.CharField(max_length=500)
+    name = models.CharField(max_length=900)
     slug = models.SlugField(unique=True, blank=True)
     video = models.FileField(upload_to='posts/videos/', blank=True)
     description = models.TextField()
