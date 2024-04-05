@@ -85,12 +85,11 @@ class PostImageViewSet(viewsets.ModelViewSet):
 
 
 class CommentListView(generics.ListAPIView):
-    queryset = Comment.objects.prefetch_related('replies').all()
     serializer_class = CommentListSerializer
 
     def get_queryset(self):
         post_pk = self.kwargs.get('post_pk')
-        queryset = Comment.objects.filter(post_id=post_pk, parent_comment=None)
+        queryset = Comment.objects.prefetch_related('replies').filter(post_id=post_pk, parent_comment=None)
         queryset = queryset.annotate(upvote_count=Count('upvote')).order_by('-upvote_count')
         return queryset
 

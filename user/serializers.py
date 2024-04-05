@@ -9,7 +9,6 @@ class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
         fields = ['id','first_name','last_name','username','email','password']
 
-
 class UserBadgeSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserBadge

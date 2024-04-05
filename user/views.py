@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 
 from post.models import Post, Comment
-from post.serializers import PostListSerializer, CommentListSerializer
+from post.views import PostViewSet as BasePostViewset, CommentListView as BaseCommentListView
 from .models import *
 from .serializers import *
 
@@ -21,21 +21,34 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return ProfileListSerializer
 
 
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostListSerializer
+class PostViewSet(BasePostViewset):
+    def get_queryset(self):
+        profile_pk = self.kwargs.get('profile_pk')
+        queryset = Post.objects.prefetch_related('downvote','upvote','saves','images','comments').select_related('owner').filter(owner=profile_pk)
+        return queryset
 
 
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentListSerializer
+class CommentViewSet(BaseCommentListView):
+    def get_queryset(self):
+        post_pk = self.kwargs.get('profile_pk')
+        queryset = Comment.objects.prefetch_related('replies').filter(post_id=post_pk, parent_comment=None)
+        return queryset
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        profile_pk = self.kwargs.get('profile_pk')
+        queryset = Notification.objects.filter(user_profile=profile_pk)
+        return queryset
 
 
 class BadgeViewSet(viewsets.ModelViewSet):
-    queryset = UserBadge.objects.all()
     serializer_class = UserBadgeSerializer
+
+    def get_queryset(self):
+        profile_pk = self.kwargs.get('profile_pk')
+        queryset = UserBadge.objects.filter(user=profile_pk)
+        return queryset

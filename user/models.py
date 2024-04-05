@@ -32,11 +32,11 @@ class Badge(models.Model):
         return self.badge_name
 
 class UserBadge(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='badges')
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='badges')
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name='users')
 
     def __str__(self):
-        return f"{self.user.username}'s {self.badge.badge_name} badge"
+        return f"{self.user.user.username}'s {self.badge.badge_name} badge"
 
 
 class Point(models.Model):
