@@ -13,7 +13,7 @@ class Tag(models.Model):
         return self.name
 
 class Post(models.Model):
-    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, related_name='posts')
     name = models.CharField(max_length=500)
     slug = models.SlugField(unique=True, blank=True)
     video = models.FileField(upload_to='posts/videos/', blank=True)
@@ -46,7 +46,7 @@ class PostImage(models.Model):
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE,null=True, related_name='my_comments')
     content = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     parent_comment = models.ForeignKey('self', related_name='replies', on_delete=models.CASCADE, null=True, blank=True)

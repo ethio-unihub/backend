@@ -2,7 +2,6 @@ from django.db.models import Count
 
 from rest_framework import serializers
 
-from user.serializers import ProfileSerializer
 from .models import Post, PostImage, Comment, CommentImage, Tag
 
 
@@ -50,10 +49,11 @@ class PostListSerializer(serializers.ModelSerializer):
     save_count = serializers.SerializerMethodField()
     upvote_count = serializers.SerializerMethodField()
     downvote_count = serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'owner', 'name', 'slug', 'video', 'images','comments_count', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
+        fields = ['id', 'owner', 'name', 'slug', 'video', 'images', 'comments_count', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
 
     def get_save_count(self, obj):
         return obj.saves.count()
@@ -63,14 +63,22 @@ class PostListSerializer(serializers.ModelSerializer):
 
     def get_downvote_count(self, obj):
         return obj.downvote.count()
-    
+
     def get_comments_count(self, obj):
         return self.count_comments(obj)
-    
+
     def count_comments(self, obj):
         main_comments = Comment.objects.filter(post=obj, parent_comment=None)
         count = main_comments.count()
         return count
+
+    def get_owner(self, obj):
+        profile = obj.owner
+        return {
+            'id': profile.id,
+            'username': profile.user.username,
+            'profile_pic': profile.profile_pic.url if profile.profile_pic else None,
+        }
 
 
 class PostCreationSerializer(serializers.ModelSerializer):
