@@ -62,6 +62,6 @@ class Comment(models.Model):
 class CommentImage(models.Model):
     comment_image = models.ImageField(upload_to='files/comment_images/')
     added_time = models.DateTimeField(auto_now_add=True)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_images')
 
 

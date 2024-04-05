@@ -21,10 +21,11 @@ class CommentListSerializer(serializers.ModelSerializer):
     replies = serializers.SerializerMethodField()
     upvote_count = serializers.SerializerMethodField()
     downvote_count = serializers.SerializerMethodField()
+    comment_images = CommentImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'created_at','upvote_count', 'downvote_count', 'replies']
+        fields = ['id', 'author', 'content', 'comment_images', 'created_at','upvote_count', 'downvote_count', 'replies']
 
     def get_replies(self, obj):
         replies = obj.replies.annotate(upvote_count=Count('upvote')).order_by('-upvote_count')

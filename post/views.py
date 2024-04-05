@@ -40,6 +40,21 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+class RelatedPostListView(generics.ListAPIView):
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    ordering_fields = ['upvote', 'added_time']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_pk']
+        try:
+            post = Post.objects.prefetch_related('tags').get(id=post_id)
+            tags = post.tags.all()
+            related_posts = Post.objects.filter(tags__in=tags).exclude(id=post_id).distinct()
+            return related_posts
+        except Post.DoesNotExist:
+            return Post.objects.none()
 
 class PostImageViewSet(viewsets.ModelViewSet):
     serializer_class = PostImageSerializer
@@ -92,6 +107,49 @@ class CommentListView(generics.ListAPIView):
         queryset = Comment.objects.prefetch_related('replies').filter(post_id=post_pk, parent_comment=None)
         queryset = queryset.annotate(upvote_count=Count('upvote')).order_by('-upvote_count')
         return queryset
+
+class CommentImageViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentImageSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('comment_pk')
+        return CommentImage.objects.filter(comment=post_id)
+    
+    def create(self, request, *args, **kwargs):
+        post_id = kwargs.get('comment_pk')
+        if request.user.is_authenticated and request.user.profile == Comment.objects.get(id=post_id).author:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def update(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_pk')
+        if request.user.is_authenticated and request.user.profile == Comment.objects.get(id=post_id).author:
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            if getattr(instance, '_prefetched_objects_cache', None):
+                instance._prefetched_objects_cache = {}
+
+            return Response(serializer.data)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def destroy(self, request, *args, **kwargs):
+        me = request.user.profile
+        instance = self.get_object()
+        if instance.comment.author == me:
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 class CommentCreateAPIView(generics.CreateAPIView):
     serializer_class = CommentCreateSerializer
