@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Organization, Hashtag
+from .models import Organization, Hashtag, Report
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -27,3 +27,9 @@ class HashtagSerializer(serializers.ModelSerializer):
             'name': instance.organization.name
         }
         return representation
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = ['']

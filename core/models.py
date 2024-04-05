@@ -1,8 +1,9 @@
 from django.db import models
-from django.conf import settings
 from django.utils.text import slugify
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
-from user.models import *
+from user.models import Profile
 
 class Organization(models.Model):
     name= models.CharField(unique=True, max_length=200)
@@ -33,3 +34,15 @@ class Hashtag(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+class Report(models.Model):
+    reported_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    reported_object_id = models.PositiveIntegerField(null=True)
+    reported_post = GenericForeignKey('reported_content_type', 'reported_object_id')
+    person = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='reports')
+    description = models.TextField()
+    time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reported {self.reported_content_type.model} at {self.time}"

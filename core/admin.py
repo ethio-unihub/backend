@@ -1,33 +1,30 @@
 from django.contrib import admin
-from .models import Organization, Hashtag
+from django.utils.safestring import mark_safe
+from .models import Organization, Hashtag, Report
 
-'''
-@admin.register(Community)
-class CommunityAdmin(admin.ModelAdmin):
-    list_display = ('community_name', 'owner')
-    search_fields = ('community_name',)
-'''
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address')
-    search_fields = ('name',)
+    list_display = ('name', 'logo_preview', 'student_email', 'address')
+    search_fields = ('name', 'student_email')
+    
+    def logo_preview(self, obj):
+        return mark_safe('<img src="{url}" width="{width}" height={height} />'.format(
+            url=obj.logo.url,
+            width=100,  # Adjust the width as needed
+            height=100,  # Adjust the height as needed
+        ))
+
+    logo_preview.short_description = 'Logo Preview'
 
 @admin.register(Hashtag)
 class HashtagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'organization_name', 'subscribers_list')
+    list_display = ('name', 'organization', 'subscribers_count')
     list_filter = ('organization',)
-    search_fields = ('name', 'organization__name')
-    readonly_fields = ('slug',)
 
-    def organization_name(self, obj):
-        return obj.organization.name
-    organization_name.short_description = 'Organization'
+    def subscribers_count(self, obj):
+        return obj.subscribers.count()
 
-    def subscribers_list(self, obj):
-        return ", ".join([profile.user.username for profile in obj.subscribers.all()])
-    subscribers_list.short_description = 'Subscribers'
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.base_fields['organization'].widget.can_add_related = False
-        return form
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('reported_content_type', 'reported_object_id', 'person', 'description', 'time')
+    list_filter = ('reported_content_type', 'time')

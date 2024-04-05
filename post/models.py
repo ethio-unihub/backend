@@ -1,6 +1,4 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 
 from user.models import Profile
@@ -66,12 +64,4 @@ class CommentImage(models.Model):
     added_time = models.DateTimeField(auto_now_add=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
 
-class Report(models.Model):
-    reported_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
-    reported_object_id = models.PositiveIntegerField(null=True)
-    reported_post = GenericForeignKey('reported_content_type', 'reported_object_id')
-    description = models.TextField()
-    time = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Reported {self.reported_content_type.model} at {self.time}"

@@ -2,4 +2,5 @@
 -- comment images
 -- algorithm
 -- filtering with hashtags
-
+-- reporting system
+-- profile

@@ -28,8 +28,7 @@ class PostViewSet(viewsets.ModelViewSet):
             instance = self.get_object()
             if instance.owner == self.request.user.profile:
                 return PostUpdateSerializer
-            else:
-                return PostChangeSerializer
+            return PostChangeSerializer
         return PostListSerializer
         
     def destroy(self, request, *args, **kwargs):

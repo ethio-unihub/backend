@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 
     'core',
     'post',
-    'user',
+    'user.apps.UserConfig',
 ]
 
 AUTH_USER_MODEL = 'user.User'
