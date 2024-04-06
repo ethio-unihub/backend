@@ -18,7 +18,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(Hashtag)
 class HashtagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'organization', 'subscribers_count')
+    list_display = ('name', 'subscribers_count')
     list_filter = ('organization',)
 
     def subscribers_count(self, obj):

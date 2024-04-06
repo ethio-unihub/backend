@@ -17,7 +17,7 @@ class Organization(models.Model):
 
 class Hashtag(models.Model):
     name = models.CharField(max_length=200)
-    organization = models.ForeignKey(Organization, related_name="hashtags", on_delete=models.CASCADE)
+    organization = models.ManyToManyField(Organization, related_name="hashtags")
     subscribers = models.ManyToManyField(Profile, related_name="subscribed_hashtags", blank=True)
     slug = models.SlugField(unique=True, blank=True)
 
