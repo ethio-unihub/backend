@@ -22,20 +22,6 @@ departments = [
     "Geography",
     "Sociology",
     "Economics",
-    "Business Administration",
-    "Political Science",
-    "Literature",
-    "Philosophy",
-    "Education",
-    "Art",
-    "Music",
-    "Film Studies",
-    "Anthropology",
-    "Archaeology",
-    "Linguistics",
-    "Religious Studies",
-    "Public Health",
-    # Add more departments as needed
 ]
 
 class Command(BaseCommand):

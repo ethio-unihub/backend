@@ -54,7 +54,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'owner', 'name', 'slug', 'video', 'images', 'comments_count', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
+        fields = ['id', 'owner', 'name', 'slug', 'video', 'images', 'description', 'comments_count', 'tags', 'save_count', 'upvote_count', 'downvote_count', 'added_time', 'updated_time']
 
     def get_save_count(self, obj):
         return obj.saves.count()

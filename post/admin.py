@@ -59,12 +59,7 @@ class AuthorFilter(admin.SimpleListFilter):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'creator', 'display_hashtags')
-    list_filter = ('creator',)
-
-    def display_hashtags(self, obj):
-        return ', '.join([hashtag.name for hashtag in obj.hashtags.all()])
-    display_hashtags.short_description = 'Hashtags'
+    list_display = ('name',)
 
 
 @admin.register(Post)
