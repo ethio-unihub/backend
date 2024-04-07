@@ -43,13 +43,19 @@ class ProfileListSerializer(serializers.ModelSerializer):
         net_points = total_points['total_points'] if total_points['total_points'] else 0
         return net_points
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username']
+
 class ProfileDetailSerializer(serializers.ModelSerializer):
     net_vote = serializers.SerializerMethodField()
     net_points = serializers.SerializerMethodField()
+    user_info = UserSerializer(source='user', read_only=True)  # Nested serializer for User model
 
     class Meta:
         model = Profile
-        fields = [ 'user','id', 'profile_pic', 'org_email', 'bio', 'verified_org', 'net_vote', 'net_points']
+        fields = ['user_info', 'id', 'profile_pic', 'org_email', 'bio', 'verified_org', 'net_vote', 'net_points']
 
     def get_net_vote(self, obj):
         upvotes = sum([post.upvote.count() for post in obj.posts.all()]) + sum([post.upvote.count() for post in obj.my_comments.all()])

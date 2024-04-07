@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_nested import routers
-from .views import ProfileViewSet, CommentViewSet, PostViewSet, NotificationViewSet, BadgeViewSet
+from .views import ProfileViewSet, CommentViewSet, PostViewSet, NotificationViewSet, BadgeViewSet, MyProfileViewSet
 
 router = routers.DefaultRouter()
 router.register(r'profiles', ProfileViewSet)
@@ -14,4 +14,5 @@ urlpatterns = router.urls + profile_router.urls
 
 urlpatterns += [
     path('profiles/<int:profile_pk>/comments/', CommentViewSet.as_view(), name='comment-list'),
+    path('profile/<int:user_pk>/', MyProfileViewSet.as_view(),),
 ]

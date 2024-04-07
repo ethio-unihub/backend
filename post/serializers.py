@@ -43,6 +43,10 @@ class CommentCreateSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['parent_comment', 'content',]
     
+class TagsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ["id", "name"]
 
 class PostListSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, read_only=True)
@@ -51,6 +55,7 @@ class PostListSerializer(serializers.ModelSerializer):
     upvote_count = serializers.SerializerMethodField()
     downvote_count = serializers.SerializerMethodField()
     owner = serializers.SerializerMethodField()
+    tags = TagsSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
@@ -78,6 +83,9 @@ class PostListSerializer(serializers.ModelSerializer):
         return {
             'id': profile.id,
             'username': profile.user.username,
+            'verified':profile.verified_org,
+            'first_name':profile.user.first_name,
+            'last_name':profile.user.last_name,
             'profile_pic': profile.profile_pic.url if profile.profile_pic else None,
         }
 

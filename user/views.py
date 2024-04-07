@@ -1,4 +1,5 @@
-from rest_framework import viewsets, permissions
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, permissions, generics, status
 from rest_framework.response import Response
 
 from post.models import Post, Comment
@@ -19,6 +20,17 @@ class ProfileViewSet(viewsets.ModelViewSet):
         elif self.action == 'retrieve' or self.action == 'update':
             return ProfileDetailSerializer
         return ProfileListSerializer
+    
+class MyProfileViewSet(generics.RetrieveAPIView):
+    serializer_class = ProfileDetailSerializer
+    
+    def retrieve(self, request, *args, **kwargs):
+        user_pk = self.kwargs.get('user_pk')
+        profile = get_object_or_404(Profile.objects.select_related('user'), user=user_pk)
+        if request.user.is_authenticated and request.user.profile == profile:
+            serializer = self.get_serializer(profile)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class PostViewSet(BasePostViewset):
