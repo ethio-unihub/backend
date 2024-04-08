@@ -8,7 +8,7 @@ from .models import *
 from .serializers import *
 
 class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
+    queryset = Profile.objects.prefetch_related('subscribed_hashtags').all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
@@ -26,7 +26,7 @@ class MyProfileViewSet(generics.RetrieveAPIView):
     
     def retrieve(self, request, *args, **kwargs):
         user_pk = self.kwargs.get('user_pk')
-        profile = get_object_or_404(Profile.objects.select_related('user'), user=user_pk)
+        profile = get_object_or_404(Profile.objects.prefetch_related('subscribed_hashtags').select_related('user'), user=user_pk)
         if request.user.is_authenticated and request.user.profile == profile:
             serializer = self.get_serializer(profile)
             return Response(serializer.data)

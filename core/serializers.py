@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Organization, Hashtag, Report
-
+from post.serializers import TagSerializer
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,24 +9,13 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class HashtagSerializer(serializers.ModelSerializer):
-    organization = OrganizationSerializer()
-
+    organization = OrganizationSerializer(read_only=True, many=True)
+    tags = TagSerializer(read_only=True, many=True)
     class Meta:
         model = Hashtag
-        fields = ['id', 'name', 'organization', 'subscribers', 'slug', 'tags']
+        fields = ['id', 'name', 'organization', 'slug', 'tags']
 
-    def validate_slug(self, value):
-        if Hashtag.objects.filter(slug=value).exists():
-            raise serializers.ValidationError("This slug already exists.")
-        return value
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['organization'] = {
-            'id': instance.organization.id,
-            'name': instance.organization.name
-        }
-        return representation
 
 
 class ReportSerializer(serializers.ModelSerializer):

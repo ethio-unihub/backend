@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status, permissions, viewsets, pagination, generics
 from rest_framework.decorators import api_view, permission_classes
@@ -9,6 +10,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Post, Comment, PostImage, Tag
 from .filter import PostFilter
 from .serializers import *
+from core.models import Hashtag
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -39,6 +41,17 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class PostHashtagViewSet(PostViewSet):
+    def get_queryset(self):
+        hashtag_pk = self.kwargs['hashtag_pk']
+        hashtag = get_object_or_404(Hashtag, pk=hashtag_pk)
+        
+        related_posts = Post.objects.filter(tags__in=hashtag.tags.all()).distinct().prefetch_related(
+            'downvote', 'upvote', 'saves', 'images', 'comments'
+        )
+
+        return related_posts
 
 class RelatedPostListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -186,8 +199,10 @@ class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
             return Response({"error": "You do not have permission to delete this comment."}, status=status.HTTP_403_FORBIDDEN)
 
 
+
+
 class TagViewSet(viewsets.ModelViewSet):
-    queryset = Tag.objects.all()
+    queryset = Tag.objects.prefetch_related('hashtags').all()
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 

@@ -3,6 +3,7 @@ from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from rest_framework import serializers
 from post.serializers import PostListSerializer, CommentListSerializer
 from .models import *
+from core.serializers import HashtagSerializer
 
 
 class UserCreateSerializer(BaseUserCreateSerializer):
@@ -51,11 +52,12 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileDetailSerializer(serializers.ModelSerializer):
     net_vote = serializers.SerializerMethodField()
     net_points = serializers.SerializerMethodField()
+    subscribed_hashtags = HashtagSerializer(many=True, read_only=True)
     user_info = UserSerializer(source='user', read_only=True)  # Nested serializer for User model
 
     class Meta:
         model = Profile
-        fields = ['user_info', 'id', 'profile_pic', 'org_email', 'bio', 'verified_org', 'net_vote', 'net_points']
+        fields = ['user_info', 'id', 'profile_pic', 'org_email', 'bio', 'verified_org', 'net_vote', 'net_points','subscribed_hashtags']
 
     def get_net_vote(self, obj):
         upvotes = sum([post.upvote.count() for post in obj.posts.all()]) + sum([post.upvote.count() for post in obj.my_comments.all()])
