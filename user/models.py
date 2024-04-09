@@ -27,15 +27,15 @@ class Profile(models.Model):
         return f"{self.user.first_name} {self.user.last_name}'s profile"
 
     def update_vote_counts(self):
-        self.total_upvotes = self.posts.aggregate(upvote_count=models.Sum('upvote__count'))['upvote_count'] or 0
-        self.total_downvotes = self.posts.aggregate(downvote_count=models.Sum('downvote__count'))['downvote_count'] or 0
-        self.total_upvotes += self.my_comments.aggregate(upvote_count=models.Sum('upvote__count'))['upvote_count'] or 0
-        self.total_downvotes += self.my_comments.aggregate(downvote_count=models.Sum('downvote__count'))['downvote_count'] or 0
+        self.total_upvotes = self.posts.aggregate(upvote_count=models.Count('upvote'))['upvote_count'] or 0
+        self.total_downvotes = self.posts.aggregate(downvote_count=models.Count('downvote'))['downvote_count'] or 0
+        self.total_upvotes += self.my_comments.aggregate(upvote_count=models.Count('upvote'))['upvote_count'] or 0
+        self.total_downvotes += self.my_comments.aggregate(downvote_count=models.Count('downvote'))['downvote_count'] or 0
 
     def update_total_points(self):
         self.total_points = self.points.aggregate(total_points=models.Sum('value'))['total_points'] or 0
 
-    def save(self, *args, **kwargs):
+    def update(self, *args, **kwargs):
         self.update_vote_counts()
         self.update_total_points()
         super().save(*args, **kwargs)
@@ -67,12 +67,12 @@ class Point(models.Model):
         return f"{self.user_profile.user.username} - {self.value} points - {self.reason}"
     
     def save(self, *args, **kwargs):
+        self.user_profile.update()
         super().save(*args, **kwargs)
-        self.user_profile.update_total_points()
 
     def delete(self, *args, **kwargs):
+        self.user_profile.update()
         super().delete(*args, **kwargs)
-        self.user_profile.update_total_points()
     
 
 class Notification(models.Model):

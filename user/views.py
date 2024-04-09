@@ -15,14 +15,10 @@ class NoPagination(PageNumberPagination):
     page_size = None
 
 class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.prefetch_related('subscribed_hashtags').select_related('user').all()
+    queryset = Profile.objects.prefetch_related('subscribed_hashtags').select_related('user').all().order_by(-(F('total_upvotes') - F('total_downvotes')))
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = NoPagination
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.order_by(F('total_upvotes') - F('total_downvotes'))
-        return queryset
 
 
     def get_serializer_class(self):

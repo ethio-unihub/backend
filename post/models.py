@@ -37,11 +37,11 @@ class Post(models.Model):
             while self.__class__.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
                 self.slug = f"{original_slug}-{counter}"
                 counter += 1
+        self.owner.update()
         super().save(*args, **kwargs)
-        self.owner.update_vote_counts()
 
     def delete(self, *args, **kwargs):
-        self.owner.update_vote_counts()
+        self.owner.update()
         super().delete(*args, **kwargs)
 
 class PostImage(models.Model):
@@ -65,12 +65,12 @@ class Comment(models.Model):
             return f"Comment on '{self.post.name}' by {self.author.user.username} (ID: {self.id})"
         
     def save(self, *args, **kwargs):
+        self.author.save()
         super().save(*args, **kwargs)
         
-        self.author.update_vote_counts()
 
     def delete(self, *args, **kwargs):
-        self.author.update_vote_counts()
+        self.author.save()
         super().delete(*args, **kwargs)
 
 class CommentImage(models.Model):

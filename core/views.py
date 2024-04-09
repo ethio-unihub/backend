@@ -1,3 +1,5 @@
+from django.db.models import Count
+
 from rest_framework import viewsets, generics, response, status
 
 from .models import  Hashtag
@@ -5,7 +7,7 @@ from .serializers import *
 
 
 class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Hashtag.objects.prefetch_related('tags','organization','subscribers').all().order_by('-subscribers')
+    queryset = Hashtag.objects.prefetch_related('tags','organization','subscribers').annotate(num_authors=Count('subscribers')).order_by('-num_authors')
     serializer_class = HashtagSerializer
 
 
