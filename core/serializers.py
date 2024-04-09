@@ -13,7 +13,7 @@ class HashtagSerializer(serializers.ModelSerializer):
     tags = TagSerializer(read_only=True, many=True)
     class Meta:
         model = Hashtag
-        fields = ['id', 'name', 'organization', 'slug', 'tags']
+        fields = ['id', 'name', 'organization', 'slug', 'tags', 'subscribers']
 
 
 

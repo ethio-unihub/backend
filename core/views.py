@@ -5,7 +5,7 @@ from .serializers import *
 
 
 class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Hashtag.objects.prefetch_related('tags','organization','subscribers').all()
+    queryset = Hashtag.objects.prefetch_related('tags','organization','subscribers').all().order_by('-subscribers')
     serializer_class = HashtagSerializer
 
 

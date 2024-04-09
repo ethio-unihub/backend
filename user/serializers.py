@@ -25,29 +25,18 @@ class PointSerializer(serializers.ModelSerializer):
         model = Point
         fields = '__all__'
 
-class ProfileListSerializer(serializers.ModelSerializer):
-    net_vote = serializers.SerializerMethodField()
-    net_points = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Profile
-        fields = ['id', 'user', 'profile_pic', 'bio', 'verified_org', 'net_vote','net_points']
-
-    def get_net_vote(self, obj):
-        upvotes = sum([post.upvote.count() for post in obj.posts.all()]) + sum([post.upvote.count() for post in obj.my_comments.all()])
-        downvotes = sum([post.downvote.count() for post in obj.posts.all()]) + sum([post.downvote.count() for post in obj.my_comments.all()])
-        net_vote = upvotes - downvotes
-        return net_vote
-    
-    def get_net_points(self, obj):
-        total_points = Point.objects.filter(user_profile=obj).aggregate(total_points=models.Sum('value'))
-        net_points = total_points['total_points'] if total_points['total_points'] else 0
-        return net_points
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
+
+class ProfileListSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False, read_only=True)
+    class Meta:
+        model = Profile
+        fields = ['id', 'user', 'profile_pic', 'bio', 'verified_org', 'total_upvotes', 'total_downvotes', 'total_points',]
+
+
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
     net_vote = serializers.SerializerMethodField()

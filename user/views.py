@@ -1,15 +1,28 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import F
+
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 from post.models import Post, Comment
 from post.views import PostViewSet as BasePostViewset, CommentListView as BaseCommentListView
 from .models import *
 from .serializers import *
 
+
+class NoPagination(PageNumberPagination):
+    page_size = None
+
 class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.prefetch_related('subscribed_hashtags').all()
+    queryset = Profile.objects.prefetch_related('subscribed_hashtags').select_related('user').all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = NoPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.order_by(F('total_upvotes') - F('total_downvotes'))
+        return queryset
 
 
     def get_serializer_class(self):

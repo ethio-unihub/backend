@@ -38,6 +38,11 @@ class Post(models.Model):
                 self.slug = f"{original_slug}-{counter}"
                 counter += 1
         super().save(*args, **kwargs)
+        self.owner.update_vote_counts()
+
+    def delete(self, *args, **kwargs):
+        self.owner.update_vote_counts()
+        super().delete(*args, **kwargs)
 
 class PostImage(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
@@ -58,6 +63,15 @@ class Comment(models.Model):
             return "reply for [{}]".format(self.parent_comment)
         if self.post:
             return f"Comment on '{self.post.name}' by {self.author.user.username} (ID: {self.id})"
+        
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        self.author.update_vote_counts()
+
+    def delete(self, *args, **kwargs):
+        self.author.update_vote_counts()
+        super().delete(*args, **kwargs)
 
 class CommentImage(models.Model):
     comment_image = models.ImageField(upload_to='files/comment_images/')
