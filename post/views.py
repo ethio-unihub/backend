@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Count
+from django.db.models import Count,F
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status, permissions, viewsets, pagination, generics
@@ -14,10 +14,14 @@ from core.models import Hashtag
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.prefetch_related('downvote','upvote','saves','images','comments').select_related('owner').all()
+    queryset = Post.objects.prefetch_related('downvote','upvote','saves','images','comments').select_related('owner').annotate(
+    upvote_count=Count('upvote'),
+    downvote_count=Count('downvote'), 
+    difference=F('upvote_count') - F('downvote_count')
+).order_by('-difference','added_time')
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = PostFilter
-    search_fields = ['name','description','owner__user__first_name','owner__user__last_name']
+    search_fields = ['name','description','owner__user__first_name','owner__user__last_name', 'slug']
     ordering_fields = ['upvote','added_time']
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
@@ -26,6 +30,8 @@ class PostViewSet(viewsets.ModelViewSet):
             return PostListSerializer
         elif self.action == 'create':
             return PostCreationSerializer
+        elif self.action == 'retrieve':
+            return PostChangeSerializer
         elif self.action == 'update':
             instance = self.get_object()
             if instance.owner == self.request.user.profile:
@@ -47,24 +53,33 @@ class PostHashtagViewSet(PostViewSet):
         hashtag_pk = self.kwargs['hashtag_pk']
         hashtag = get_object_or_404(Hashtag, pk=hashtag_pk)
         
-        related_posts = Post.objects.filter(tags__in=hashtag.tags.all()).distinct().prefetch_related(
-            'downvote', 'upvote', 'saves', 'images', 'comments'
-        )
+        related_posts = Post.objects.filter(tags__in=hashtag.tags.all()).distinct().prefetch_related('downvote','upvote','saves','images','comments').select_related('owner').annotate(
+            upvote_count=Count('upvote'),
+            downvote_count=Count('downvote'), 
+            difference=F('upvote_count') - F('downvote_count')
+        ).order_by('-difference','added_time')
 
         return related_posts
 
+class NoPagination(pagination.PageNumberPagination):
+    page_size = None
 class RelatedPostListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     ordering_fields = ['upvote', 'added_time']
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = PostListSerializer
+    pagination_class = NoPagination
 
     def get_queryset(self):
         post_id = self.kwargs['post_pk']
         try:
             post = Post.objects.prefetch_related('tags').get(id=post_id)
             tags = post.tags.all()
-            related_posts = Post.objects.filter(tags__in=tags).exclude(id=post_id).distinct()
+            related_posts = Post.objects.prefetch_related('downvote','upvote','saves','images','comments').select_related('owner').filter(tags__in=tags).exclude(id=post_id).distinct().annotate(
+                upvote_count=Count('upvote'),
+                downvote_count=Count('downvote'), 
+                difference=F('upvote_count') - F('downvote_count')
+            ).order_by('-difference','added_time')
             return related_posts
         except Post.DoesNotExist:
             return Post.objects.none()
@@ -114,11 +129,16 @@ class PostImageViewSet(viewsets.ModelViewSet):
 
 class CommentListView(generics.ListAPIView):
     serializer_class = CommentListSerializer
+    pagination_class = NoPagination
 
     def get_queryset(self):
         post_pk = self.kwargs.get('post_pk')
         queryset = Comment.objects.prefetch_related('replies').filter(post_id=post_pk, parent_comment=None)
-        queryset = queryset.annotate(upvote_count=Count('upvote')).order_by('-upvote_count')
+        queryset = queryset.annotate(
+                upvote_count=Count('upvote'),
+                downvote_count=Count('downvote'), 
+                difference=F('upvote_count') - F('downvote_count')
+            ).order_by('-difference','-created_at')
         return queryset
 
 class CommentImageViewSet(viewsets.ModelViewSet):

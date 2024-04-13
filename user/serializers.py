@@ -1,7 +1,6 @@
 
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from rest_framework import serializers
-from post.serializers import PostListSerializer, CommentListSerializer
 from .models import *
 from core.serializers import HashtagSerializer
 
@@ -25,13 +24,13 @@ class PointSerializer(serializers.ModelSerializer):
         model = Point
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
+class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
 
 class ProfileListSerializer(serializers.ModelSerializer):
-    user = UserSerializer(many=False, read_only=True)
+    user = UserModelSerializer(many=False, read_only=True)
     class Meta:
         model = Profile
         fields = ['id', 'user', 'profile_pic', 'bio', 'verified_org', 'total_upvotes', 'total_downvotes', 'total_points',]
@@ -42,7 +41,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     net_vote = serializers.SerializerMethodField()
     net_points = serializers.SerializerMethodField()
     subscribed_hashtags = HashtagSerializer(many=True, read_only=True)
-    user_info = UserSerializer(source='user', read_only=True)  # Nested serializer for User model
+    user_info = UserModelSerializer(source='user', read_only=True)  # Nested serializer for User model
 
     class Meta:
         model = Profile
