@@ -1,4 +1,5 @@
 import django_filters
+from django.db.models import Count, F
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, permissions, response, status
@@ -16,7 +17,11 @@ class UserFileFilter(django_filters.FilterSet):
         }
 
 class FileListView(viewsets.ModelViewSet):
-    queryset = UserFile.objects.all()
+    queryset = UserFile.objects.prefetch_related('saves','downloads','tag','upvotes','downvotes').annotate(
+        upvote_count=Count('upvotes'),
+        downvote_count=Count('downvotes'), 
+        difference=F('upvote_count') - F('downvote_count')
+    ).order_by('-difference','created_at')
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = UserFileFilter
     search_fields = ['name','author__user__first_name','author__user__last_name']

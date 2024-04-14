@@ -1,14 +1,15 @@
 from django.db.models import Count
 
-from rest_framework import viewsets, generics, response, status
+from rest_framework import viewsets, generics, response, status, mixins
 
 from .models import  Hashtag
 from .serializers import *
+from user.views import NoPagination
 
-
-class HashtagViewSet(viewsets.ReadOnlyModelViewSet):
+class HashtagViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = Hashtag.objects.prefetch_related('tags','organization','subscribers').annotate(num_authors=Count('subscribers')).order_by('-num_authors')
     serializer_class = HashtagSerializer
+    pagination_class = NoPagination
 
 
 class ReportCreateAPIView(generics.CreateAPIView):

@@ -225,6 +225,7 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.prefetch_related('hashtags').all()
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = NoPagination
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user.profile)

@@ -26,7 +26,7 @@ def handle_userfile_downvote(sender, instance, action, model, pk_set, **kwargs):
         for downvoter_profile in downvoter_profiles:
             message = f"You downvoted the file '{instance.name}'."
             Notification.objects.create(user_profile=downvoter_profile, message=message)
-            Point.objects.create(user_profile=downvoter_profile, value=-1, reason='File Downvoted')
+            Point.objects.create(user_profile=downvoter_profile, value=-2, reason='File Downvoted')
 
 @receiver(m2m_changed, sender=UserFile.saves.through)
 def handle_userfile_save(sender, instance, action, model, pk_set, **kwargs):
@@ -44,4 +44,4 @@ def handle_userfile_download(sender, instance, action, model, pk_set, **kwargs):
         for downloader_profile in downloader_profiles:
             message = f"You downloaded the file '{instance.name}'."
             Notification.objects.create(user_profile=downloader_profile, message=message)
-            Point.objects.create(user_profile=downloader_profile, value=3, reason='File Downloaded')
+            Point.objects.create(user_profile=downloader_profile, value=1, reason='File Downloaded')
