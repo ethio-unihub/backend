@@ -16,13 +16,14 @@ class Post(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, related_name='posts')
     name = models.CharField(max_length=900)
     slug = models.SlugField(unique=True, blank=True)
-    video = models.FileField(upload_to='posts/videos/', blank=True)
+    video = models.FileField(upload_to='posts/videos/', blank=True, null=True)
     description = models.TextField()
     saves = models.ManyToManyField(Profile, related_name='saved_posts', blank=True)
     tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
     upvote = models.ManyToManyField(Profile, related_name='upvoted_posts', blank=True)
     downvote = models.ManyToManyField(Profile, related_name='downvoted_posts', blank=True)
     added_time = models.DateTimeField(auto_now_add=True)
+    reports = models.ManyToManyField(Profile, blank=True)
     updated_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):

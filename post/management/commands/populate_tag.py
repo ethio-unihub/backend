@@ -32,21 +32,6 @@ tags_data = [
     "Color Theory",
     "Logo Design",
     "Illustration",
-    "Animation",
-    "Video Editing",
-    "Photography",
-    "Content Marketing",
-    "SEO (Search Engine Optimization)",
-    "Social Media Marketing",
-    "Email Marketing",
-    "Google Analytics",
-    "Copywriting",
-    "Influencer Marketing",
-    "Brand Management",
-    "Financial Analysis",
-    "Investment Management",
-    "Corporate Finance",
-    "Financial Modeling",
 ]
 
 class Command(BaseCommand):

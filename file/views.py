@@ -26,7 +26,6 @@ class FileListView(viewsets.ModelViewSet):
     filterset_class = UserFileFilter
     search_fields = ['name','author__user__first_name','author__user__last_name']
     ordering_fields = ['upvote','added_time']
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
         if self.action == 'list':

@@ -9,7 +9,7 @@ class FileListSerializer(serializers.ModelSerializer):
     author = ProfileDetailSerializer(many=False, read_only=True)
     class Meta:
         model = UserFile
-        fields = ['id','name', 'saves', 'upvotes', 'downvotes', 'downloads', 'tag', 'author', 'file','created_at']
+        fields = ['id','name', 'saves', 'upvotes', 'downvotes', 'downloads', 'tag', 'author', 'file','created_at', 'reports']
     
 
 class FileCreateSerializer(serializers.ModelSerializer):
@@ -21,4 +21,4 @@ class FileCreateSerializer(serializers.ModelSerializer):
 class FileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserFile
-        fields = ['id', 'upvotes', 'downvotes', 'downloads', 'saves']
+        fields = ['id', 'upvotes', 'downvotes', 'downloads', 'saves','reports']

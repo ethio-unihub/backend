@@ -148,11 +148,11 @@ DJOSER = {
     'USERNAME_CHANGED_EMAIL_CONFIRMATION':True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
     'PASSWORD_RESET_CONFIRM_RETYPE':True,
-    'SEND_CONFIRMATION_EMAIL':True,
+    'SEND_CONFIRMATION_EMAIL':False,
     'PASSWORD_RESET_CONFIRM_URL':'password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL':'username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL':'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL':True,
+    'SEND_ACTIVATION_EMAIL':False,
     'SERIALIZERS':{
         'user_create': 'user.serializers.UserCreateSerializer',
         'user': 'user.serializers.UserCreateSerializer',
@@ -207,6 +207,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOW_HEADERS = [
+    'Content-Type',
+    'Authorization',
+    'X-CSRFToken',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

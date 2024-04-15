@@ -11,7 +11,7 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 
 class UserBadgeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserBadge
+        model = Point
         fields = '__all__'
 
 class NotificationSerializer(serializers.ModelSerializer):

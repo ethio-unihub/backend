@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         for user in Profile.objects.all():
             # Randomly decide the number of files for each user (up to 10)
-            num_files = random.randint(0, 2)
+            num_files = random.randint(0, 1)
             for _ in range(num_files):
                 file_data = random.choice(files)
                 file_instance = UserFile.objects.create(name=file_data['name'], file=file_data['file'], author=user)

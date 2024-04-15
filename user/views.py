@@ -10,6 +10,10 @@ from post.views import PostViewSet as BasePostViewset, CommentListView as BaseCo
 from .models import *
 from .serializers import *
 
+from file.serializers import FileListSerializer
+from post.serializers import PostListSerializer
+from file.models import UserFile
+
 
 class NoPagination(PageNumberPagination):
     page_size = None
@@ -59,17 +63,45 @@ class CommentViewSet(BaseCommentListView):
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = NoPagination
 
     def get_queryset(self):
         profile_pk = self.kwargs.get('profile_pk')
-        queryset = Notification.objects.filter(user_profile=profile_pk)
+        queryset = Notification.objects.filter(user_profile=profile_pk).order_by('-timestamp')
         return queryset
 
 
 class BadgeViewSet(viewsets.ModelViewSet):
     serializer_class = UserBadgeSerializer
+    pagination_class = NoPagination
 
     def get_queryset(self):
         profile_pk = self.kwargs.get('profile_pk')
-        queryset = UserBadge.objects.filter(user=profile_pk)
+        queryset = Point.objects.filter(user_profile=profile_pk)
         return queryset
+
+class SavedFilesViewSet(viewsets.ModelViewSet):
+    serializer_class = FileListSerializer
+
+    def get_queryset(self):
+        profile_pk = self.kwargs.get('profile_pk')
+        queryset = UserFile.objects.filter(saves__in=profile_pk)
+        return queryset
+    
+class MyFilesViewSet(viewsets.ModelViewSet):
+    serializer_class = FileListSerializer
+
+    def get_queryset(self):
+        profile_pk = self.kwargs.get('profile_pk')
+        queryset = UserFile.objects.filter(author=profile_pk)
+        return queryset
+
+class SavedPostsViewSet(viewsets.ModelViewSet):
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        profile_pk = self.kwargs.get('profile_pk')
+        queryset = Post.objects.filter(saves__in=profile_pk)
+        return queryset
+
+

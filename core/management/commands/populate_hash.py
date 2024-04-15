@@ -14,12 +14,6 @@ departments = [
     "Computer Science",
     "Biomedical",
     "Agricultural",
-    "Environmental",
-    "Physics",
-    "Mathematics",
-    "Psychology",
-    "History",
-    "Geography",
     "Sociology",
     "Economics",
 ]

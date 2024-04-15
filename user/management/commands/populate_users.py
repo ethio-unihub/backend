@@ -31,7 +31,7 @@ class Command(BaseCommand):
             {"first_name": "Victoria", "last_name": "Howard", "email": "victoria.howard@example.com"},
             # Add more user data as needed
         ]
-        for i in range(100):
+        for i in range(30):
             user_data = users_data[i % len(users_data)]  # Loop through the user data cyclically
             first_name = user_data["first_name"]
             last_name = user_data["last_name"]

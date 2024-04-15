@@ -60,7 +60,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'owner', 'name', 'slug', 'video', 'images', 'description', 'comments_count', 'tags', 'saves','upvote', 'downvote', 'added_time', 'updated_time']
+        fields = ['id', 'owner', 'name', 'slug', 'video', 'images', 'description', 'comments_count', 'tags', 'saves','upvote', 'downvote', 'added_time', 'updated_time', 'reports']
 
     def get_comments_count(self, obj):
         return self.count_comments(obj)
@@ -85,13 +85,13 @@ class PostListSerializer(serializers.ModelSerializer):
 class PostCreationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['name', 'video', 'description', 'tags']
+        fields = ['id','owner','name', 'video', 'description', 'tags']
 
         
 class PostUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['name', 'video', 'description', 'tags']
+        fields = ['name', 'video', 'description', 'tags', 'reports']
 
 class PostChangeSerializer(serializers.ModelSerializer):
     class Meta:
